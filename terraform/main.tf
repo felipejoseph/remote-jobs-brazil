@@ -16,6 +16,7 @@ provider "aws" {
 resource "aws_instance" "comentarios_app" {
   ami           = "ami-830c94e3"
   instance_type = "t2.micro"
+  key_name = "iac-teste"
   
   tags = {
     Name = "comentarios-app-instance"
