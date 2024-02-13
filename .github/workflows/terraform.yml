@@ -41,13 +41,4 @@ jobs:
       working-directory: terraform
       run: terraform apply -auto-approve tfplan
 
-  docker:
-    runs-on: ubuntu-latest
-    needs: terraform
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-
-    - name: Build and run Docker container
-      run: docker build -t comentarios-app -f docker/Dockerfile .
 
