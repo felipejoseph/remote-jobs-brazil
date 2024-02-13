@@ -6,6 +6,6 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY app/ .
 
-CMD ["gunicorn", "--log-level", "debug", "api:app"]
+CMD ["gunicorn", "--log-level", "debug", "app:app"]
