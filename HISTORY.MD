@@ -27,7 +27,13 @@ Comecei a fazer a contrução da estrutura de pastas
 REMOTE-JOBS-BRAZIL/
 │
 ├── app.py
+├── terraform/
+|   └── main.tf
 ├── test/
 │   └── test_app.py
 └── docker/
     └── Dockerfile
+
+Após o ajuste das pastas , foi feito pequenos ajustes na Api.py para que se "ajusta-se" a nova estrutura corretamente. 
+
+Foi feito a criação o workflow no github actions para subir provisionar o ambiente (IAC)
