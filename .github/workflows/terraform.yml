@@ -49,4 +49,5 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Build and run Docker container
-      run: docker build -t comentarios-app -f docker/Dockerfile ./docker && docker run comentarios-app
+      run: docker build -t comentarios-app -f docker/Dockerfile .
+
