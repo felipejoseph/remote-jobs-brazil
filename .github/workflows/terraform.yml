@@ -31,9 +31,9 @@ jobs:
       env:
           AWS_PEM: ${{ secrets.AWS_PEM_KEY }}
       run: |
-          echo "$AWS_PEM" | base64 --decode > chave.pem
-          chmod 400 chave.pem
-          ls -l
+        echo "$AWS_PEM" | base64 --decode > /tmp/chave.pem
+        chmod 400 /tmp/chave.pem
+        ls -l /tmp/chave.pem
 
       
     - name: Use AWS PEM Key
