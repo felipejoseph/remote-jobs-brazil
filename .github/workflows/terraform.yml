@@ -17,11 +17,26 @@ jobs:
       with:
         terraform_version: 1.0.0
 
-    - name: Configure AWS Credentials
+    - name: Set up AWS credentials
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: echo "AWS credentials configured"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+     
+    - name: Use AWS credentials
+      run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set region us-west-2
+
+     
+    - name: Set up AWS PEM Key
+      env:
+          AWS_PEM: ${{ secrets.AWS_PEM_KEY }}
+
+      
+    - name: Use AWS PEM Key
+      run: echo "$AWS_PEM" | base64 --decode > chave.pem && chmod 400 chave.pem && ls -l
 
     - name: Terraform Init
       working-directory: terraform
