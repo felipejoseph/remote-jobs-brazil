@@ -18,26 +18,16 @@ jobs:
         terraform_version: 1.0.0
 
     - name: Set up AWS credentials
-      env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          aws configure set region us-west-2
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws configure set region us-west-2
 
-      # Configura a chave PEM da AWS
     - name: Set up AWS PEM Key
-      env:
-          AWS_PEM: ${{ secrets.AWS_PEM_KEY }}
       run: |
-        echo "$AWS_PEM" | base64 --decode > /tmp/chave.pem
+        echo "${{ secrets.AWS_PEM_KEY }}" | base64 --decode > /tmp/chave.pem
         chmod 400 /tmp/chave.pem
         ls -l /tmp/chave.pem
-
-      
-    - name: Use AWS PEM Key
-      run: echo "$AWS_PEM" | base64 --decode > chave.pem && chmod 400 chave.pem && ls -l
 
     - name: Terraform Init
       working-directory: terraform
@@ -50,7 +40,13 @@ jobs:
     - name: Terraform Apply
       working-directory: terraform
       run: terraform apply -auto-approve tfplan
-    
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: terraform
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
     - name: Build and run Docker container
       run: docker build -t comentarios-app -f docker/Dockerfile ./docker && docker run comentarios-app
-
