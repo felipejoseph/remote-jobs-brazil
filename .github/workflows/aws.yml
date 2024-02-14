@@ -45,12 +45,12 @@ jobs:
         ls -la /tmp
     
     - name: Escrever chave privada em um arquivo temporário
-      run: echo "${{ secrets.AWS_PEM }}" > chave.pem
+      run: echo "${{ secrets.AWS_PEM }}" > iac-teste.pem
 
     - name: Conectar via SSH para a instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
-        ssh -i "chave.pem" ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com "echo 'Conexão SSH estabelecida'"
+        ssh -i "iac-teste.pem" ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com "echo 'Conexão SSH estabelecida'"
 
     - name: Copiar arquivo tar para a instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
