@@ -14,3 +14,12 @@ jobs:
       run: |
         docker build . --file Docker/Dockerfile --tag my-image-name
         docker save my-image-name -o my-image-name.tar
+
+    - name: Debug - List files in current directory
+      run: ls -al
+
+    - name: Debug - Display file size of the tarball
+      run: du -h my-image-name.tar
+
+    - name: Debug - Display content of the tarball
+      run: tar -tvf my-image-name.tar
