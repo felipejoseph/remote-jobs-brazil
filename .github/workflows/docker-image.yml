@@ -20,7 +20,10 @@ jobs:
         docker save my-image-name -o my-image-name.tar
 
     - name: Transfer Docker image to EC2 instance
-      uses: appleboy/scp-action@master
+      run: |
+            sudo tar -czf /tmp/my-image-name.tar.gz /path/to/my-image-name
+            sudo scp /tmp/my-image-name.tar.gz ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_ELASTIC_IP }}:/home/ubuntu
+
       with:
         host: ${{ secrets.EC2_ELASTIC_IP }}
         username: ${{ secrets.EC2_USERNAME }}
