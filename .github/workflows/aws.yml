@@ -46,22 +46,16 @@ jobs:
         # Copiar o arquivo tar para a instância EC2
         scp -i ${{ secrets.AWS_PEM }} /tmp/meuapp.tar ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu
 
-    - name: Apagar imagem Docker localmente
-      if: steps.checkinstance.outputs.instance_exists == 'true'
-      run: |
-        # Apagar a imagem Docker localmente
-        docker rmi meuapp:latest
-
-
-
-
     - name: Extrair e implantar artefatos na instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
         # Conectar-se à instância EC2
         ssh -i ${{ secrets.AWS_PEM }} ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com "
           # Extrair os artefatos
-          tar -xzf /home/ubuntu/artefatos.tar.gz -C /caminho/para/implantar
+          tar -xzf /home/ubuntu/meuapp.tar -C /caminho/para/implantar
           
           # Comandos adicionais de implantação, se necessário
+          
+          # Apagar a imagem Docker localmente após implantação bem-sucedida
+          docker rmi meuapp:latest
         "
