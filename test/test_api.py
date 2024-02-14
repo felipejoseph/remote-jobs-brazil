@@ -50,7 +50,7 @@ class TestAPI(unittest.TestCase):
         # Verificando se a resposta contém a mensagem adequada
         data = json.loads(response.get_data(as_text=True))
         self.assertEqual(data['status'], 'NOT-FOUND')
-        self.assertEqual(data['message'], 'content_id 456 not found')
+        self.assertEqual(data['message'], 'content_id 456 not found')  # Correção aqui
 
 if __name__ == '__main__':
     unittest.main()
