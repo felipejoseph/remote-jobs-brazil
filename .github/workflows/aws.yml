@@ -44,14 +44,14 @@ jobs:
       run: |
         ls -la /tmp
 
-    - name: Copiar arquivo tar para a instância EC2
+    - name: Copiar arquivo tar para a instância EC2 usando SFTP
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
-        # Copiar o arquivo tar para o bucket S3
-        aws s3 cp /tmp/meuapp.tar s3://seu-bucket/meuapp.tar
-
-        # Copiar o arquivo tar do S3 para a instância EC2
-        aws s3 cp s3://seu-bucket/meuapp.tar /home/ubuntu/meuapp.tar
+        # Copiar o arquivo tar para a instância EC2 usando SFTP
+        sftp -i ${{ secrets.AWS_PEM }} ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu << EOF
+        put /tmp/meuapp.tar
+        exit
+        EOF
 
         
 
