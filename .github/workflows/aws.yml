@@ -30,15 +30,24 @@ jobs:
           echo "::set-output name=existing_instance_id::$existing_instance"
         fi
 
-    - name: Copiar arquivos para a instância EC2
+    - name: Criar e enviar arquivo tar para a instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
-        rsync -av -e "ssh -i ${{ secrets.AWS_PEM }}" /./* ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu/
-
-
-
-    - name: Executar build e deploy na instância EC2
-      if: steps.checkinstance.outputs.instance_exists == 'true'
-      run: |
+        docker build -t meuapp .
         
-        ssh ubuntu@44.232.195.60 "cd /home/ubuntu/REMOTE-JOBS-BRAZIL/docker && ./build.sh && ./deploy.sh"
+        
+        docker run --name meuapp-container meuapp tar -czf /tmp/artefatos.tar.gz -C /home/ubuntu .
+        
+        
+        scp -i ${{ secrets.AWS_PEM }} /tmp/artefatos.tar.gz ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu
+
+    - name: Extrair e implantar artefatos na instância EC2
+      if: steps.checkinstance.outputs.instance_exists == 'true'
+      run: |
+        # Conectar-se à instância EC2
+        ssh -i ${{ secrets.AWS_PEM }} ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com "
+          # Extrair os artefatos
+          tar -xzf /home/ubuntu/artefatos.tar.gz -C /caminho/para/implantar
+          
+          # Comandos adicionais de implantação, se necessário
+        "
