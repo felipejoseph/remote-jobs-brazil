@@ -36,7 +36,6 @@ jobs:
                         --image-id ami-830c94e3 \
                         --instance-type t2.micro \
                         --key-name iac-teste \
-                        --subnet-id sua-subnet-id \
                         --associate-public-ip-address \
                         --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=comentarios-app-instance}]' \
                         --query 'Instances[0].InstanceId' \
