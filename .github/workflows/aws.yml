@@ -30,8 +30,7 @@ jobs:
           echo "::set-output name=existing_instance_id::$existing_instance"
         fi
 
-    - name: Criar e enviar arquivo tar para a instância EC2
-      if: steps.checkinstance.outputs.instance_exists == 'true'
+    
     - name: Criar e enviar arquivo tar para a instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
