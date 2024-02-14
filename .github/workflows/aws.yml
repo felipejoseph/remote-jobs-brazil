@@ -1,35 +1,43 @@
-name: Deploy Docker Image to EC2
-
+name: Deploy na Instância EC2
 on:
   workflow_run:
-    workflows: ["Docker Image CI"]
+    workflows: ["Criar ou usar Instância EC2 com IP Elástico"]
     types:
       - completed
 
 jobs:
-  deploy:
+  deploy-na-ec2:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Check out the repository
+    - name: Checkout do repositório
       uses: actions/checkout@v2
-      
-    - name: Transfer Docker image to EC2 instance
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.EC2_ELASTIC_IP }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.AWS_PEM }}
-        source: /home/runner/work/remote-jobs-brazil/remote-jobs-brazil/build/my-image-name.tar  # Nome do arquivo da imagem Docker
-        target: /home/ubuntu    # Caminho na instância EC2
 
-    - name: SSH into EC2 instance and run Docker container
-      uses: appleboy/ssh-action@master
+    - name: Configurar AWS CLI
+      uses: aws-actions/configure-aws-credentials@v2
       with:
-        host: ${{ secrets.EC2_ELASTIC_IP }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        port: 22
-        script: |
-          sudo docker load -i /home/ubuntu/my-image-name.tar  # Carregar a imagem Docker
-          sudo docker run -d --name my-container my-image-name  # Executar o contêiner Docker
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Verificar se a instância já existe
+      id: checkinstance
+      run: |
+        existing_instance=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=comentarios-app-instance" --query 'Reservations[].Instances[].[InstanceId]' --output text)
+        if [ -z "$existing_instance" ]; then
+          echo "::set-output name=instance_exists::false"
+        else
+          echo "::set-output name=instance_exists::true"
+          echo "::set-output name=existing_instance_id::$existing_instance"
+        fi
+
+    - name: Copiar arquivos para a instância EC2
+      if: steps.checkinstance.outputs.instance_exists == 'true'
+      run: |
+        
+        scp -r * ubuntu@44.232.195.60:/home/ubuntu
+
+    - name: Executar build e deploy na instância EC2
+      if: steps.checkinstance.outputs.instance_exists == 'true'
+      run: |
+        
+        ssh ubuntu@44.232.195.60 "cd /home/ubuntu/REMOTE-JOBS-BRAZIL/docker && ./build.sh && ./deploy.sh"
