@@ -32,18 +32,23 @@ jobs:
 
     - name: Criar e enviar arquivo tar para a instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
-      run: |
-         
-              docker build -t meuapp -f Docker/Dockerfile .
-              
-              
-              mkdir -p /tmp/artefatos
-              
-              
-              docker run --name meuapp-container -v /tmp/artefatos:/workdir meuapp tar -czf /workdir/artefatos.tar.gz -C /workdir .
+      - name: Criar e enviar arquivo tar para a instância EC2
+        if: steps.checkinstance.outputs.instance_exists == 'true'
+        run: |
+          # Construir a imagem Docker
+          docker build -t meuapp -f Docker/Dockerfile .
 
-            
-              scp -i ${{ secrets.AWS_PEM }} /tmp/artefatos/artefatos.tar.gz ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu
+          docker images
+          
+          # Criar um diretório temporário para armazenar o arquivo .tar.gz
+          mkdir -p /tmp/artefatos
+          
+          # Executar o contêiner Docker e criar o arquivo .tar.gz no diretório temporário
+          docker run --name meuapp-container -v /tmp/artefatos:/workdir meuapp sh -c 'tar -czf /workdir/artefatos.tar.gz -C /workdir .'
+
+          # Copiar o arquivo .tar.gz para a instância EC2
+          scp -i ${{ secrets.AWS_PEM }} /tmp/artefatos/artefatos.tar.gz ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu
+
 
 
     - name: Extrair e implantar artefatos na instância EC2
