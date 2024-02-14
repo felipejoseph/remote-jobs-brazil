@@ -20,10 +20,6 @@ jobs:
         docker save my-image-name -o my-image-name.tar
 
     - name: Transfer Docker image to EC2 instance
-    
-    - name: List files in directory
-      run: ls -al
-
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.EC2_ELASTIC_IP }}
@@ -31,6 +27,9 @@ jobs:
         key: ${{ secrets.AWS_PEM }}
         source: my-image-name.tar
         target: /tmp/my-image-name.tar
+
+    - name: List files in directory
+      run: ls -al
 
     - name: SSH into EC2 instance and run Docker container
       uses: appleboy/ssh-action@master
