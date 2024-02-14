@@ -2,7 +2,7 @@ name: Criar ou usar Instância EC2 com IP Elástico
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   criar-ou-usar-instancia-ec2:
