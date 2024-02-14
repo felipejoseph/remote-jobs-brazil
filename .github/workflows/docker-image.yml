@@ -24,13 +24,6 @@ jobs:
             sudo tar -czf /tmp/my-image-name.tar.gz /path/to/my-image-name
             sudo scp /tmp/my-image-name.tar.gz ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_ELASTIC_IP }}:/home/ubuntu
 
-      with:
-        host: ${{ secrets.EC2_ELASTIC_IP }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.AWS_PEM }}
-        source: my-image-name.tar
-        target: /home/ubuntu/my-image-name.tar
-
     - name: List files in directory
       run: ls -al
 
