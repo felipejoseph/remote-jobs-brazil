@@ -18,9 +18,8 @@ jobs:
       run: |
         docker build . --file Docker/Dockerfile --tag my-image-name
         docker save my-image-name -o my-image-name.tar
-    - name: Print build directory
-      run: |
-          ls -al /home/runner/work/remote-jobs-brazil/remote-jobs-brazil/build/
+        ls -al /home/runner/work/remote-jobs-brazil/remote-jobs-brazil/build/
+             
 
     - name: Transfer Docker image to EC2 instance
       run: |
