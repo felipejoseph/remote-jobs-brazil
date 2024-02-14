@@ -37,7 +37,11 @@ jobs:
       uses: docker/setup-buildx-action@v1
 
     - name: Build Docker image
-      run: docker build -t myapp -f Docker/Dockerfile .
+      run: |
+        echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        docker build -t myapp -f Docker/Dockerfile .
+      env:
+        DOCKER_USERNAME: your_docker_username
       working-directory: ${{ github.workspace }}
 
     - name: Deploy to production
