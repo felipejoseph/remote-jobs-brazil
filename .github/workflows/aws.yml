@@ -40,6 +40,10 @@ jobs:
         # Salvar a imagem Docker em um arquivo tar
         docker save -o /tmp/meuapp.tar meuapp:latest
 
+    - name: Debug - Listar arquivos na pasta /tmp
+      run: |
+        ls -la /tmp
+
     - name: Copiar arquivo tar para a instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
