@@ -1,71 +1,41 @@
-name: Criar ou usar Instância EC2 com IP Elástico
+name: Python Build, Test, Deploy
+
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  criar-ou-usar-instancia-ec2:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout do repositório
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Configurar AWS CLI
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-2
+    - name: Build Docker image
+      run: docker build -t myapp .
 
-    - name: Verificar se a instância já existe
-      id: checkinstance
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Run tests
       run: |
-        existing_instance=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=comentarios-app-instance" --query 'Reservations[].Instances[].[InstanceId]' --output text)
-        if [ -z "$existing_instance" ]; then
-          echo "::set-output name=instance_exists::false"
-        else
-          echo "::set-output name=instance_exists::true"
-          echo "::set-output name=existing_instance_id::$existing_instance"
-        fi
+        docker run myapp python -m pytest
 
-    - name: Criar Instância EC2 se não existir
-      if: steps.checkinstance.outputs.instance_exists == 'false'
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Deploy to production
       run: |
-        new_instance=$(aws ec2 run-instances \
-                        --image-id ami-830c94e3 \
-                        --instance-type t2.micro \
-                        --key-name iac-teste \
-                        --associate-public-ip-address \
-                        --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=comentarios-app-instance}]' \
-                        --query 'Instances[0].InstanceId' \
-                        --output text)
-        echo "::set-output name=new_instance_id::$new_instance"
-
-    - name: Usar instância existente se já estiver criada
-      if: steps.checkinstance.outputs.instance_exists == 'true'
-      run: |
-        existing_instance_id=${{ steps.checkinstance.outputs.existing_instance_id }}
-        echo "A instância existente com ID $existing_instance_id será utilizada."
-
-    - name: Criar IP Elástico se necessário
-      run: |
-        if [ steps.checkinstance.outputs.instance_exists == 'false' ]; then
-          elastic_ip=$(aws ec2 allocate-address --domain vpc --region us-west-2 --query 'PublicIp' --output text)
-          echo "::set-output name=elastic_ip::$elastic_ip"
-        fi
-
-    - name: Associar IP Elástico à Instância
-      run: |
-        if [ steps.checkinstance.outputs.instance_exists == 'false' ]; then
-          instance_id=${{ steps.criar-ou-usar-instancia-ec2.outputs.new_instance_id }}
-        else
-          instance_id=${{ steps.checkinstance.outputs.existing_instance_id }}
-        fi
-
-        if [ -n "$elastic_ip" ]; then
-          aws ec2 associate-address \
-            --instance-id $instance_id \
-            --public-ip $elastic_ip \
-            --region sua-regiao-da-aws
-        fi
+        docker tag myapp myregistry/myapp
+        docker push myregistry/myapp
+        # Add any additional deployment steps here
