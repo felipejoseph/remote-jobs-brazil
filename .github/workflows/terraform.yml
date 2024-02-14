@@ -1,44 +1,72 @@
-name: Provision Infrastructure
-
+name: Criar ou usar Instância EC2 com IP Elástico
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  terraform:
+  criar-ou-usar-instancia-ec2:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Repository
+    - name: Checkout do repositório
       uses: actions/checkout@v2
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+    - name: Configurar AWS CLI
+      uses: aws-actions/configure-aws-credentials@v2
       with:
-        terraform_version: 1.0.0
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
 
-    - name: Set up AWS credentials
+    - name: Verificar se a instância já existe
+      id: checkinstance
       run: |
-        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws configure set region us-west-2
+        existing_instance=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=comentarios-app-instance" --query 'Reservations[].Instances[].[InstanceId]' --output text)
+        if [ -z "$existing_instance" ]; then
+          echo "::set-output name=instance_exists::false"
+        else
+          echo "::set-output name=instance_exists::true"
+          echo "::set-output name=existing_instance_id::$existing_instance"
+        fi
 
-    - name: Set up AWS PEM Key
+    - name: Criar Instância EC2 se não existir
+      if: steps.checkinstance.outputs.instance_exists == 'false'
       run: |
-        echo "${{ secrets.AWS_PEM_KEY }}" | base64 --decode > /tmp/chave.pem
-        chmod 400 /tmp/chave.pem
-        ls -l /tmp/chave.pem
+        new_instance=$(aws ec2 run-instances \
+                        --ami-830c94e3 \
+                        --t2.micro \
+                        --iac-teste \
+                        --subnet-id sua-subnet-id \
+                        --associate-public-ip-address \
+                        --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=comentarios-app-instance}]' \
+                        --query 'Instances[0].InstanceId' \
+                        --output text)
+        echo "::set-output name=new_instance_id::$new_instance"
 
-    - name: Terraform Init
-      working-directory: terraform
-      run: terraform init
+    - name: Usar instância existente se já estiver criada
+      if: steps.checkinstance.outputs.instance_exists == 'true'
+      run: |
+        existing_instance_id=${{ steps.checkinstance.outputs.existing_instance_id }}
+        echo "A instância existente com ID $existing_instance_id será utilizada."
 
-    - name: Terraform Plan
-      working-directory: terraform
-      run: terraform plan -out=tfplan
+    - name: Criar IP Elástico se necessário
+      run: |
+        if [ steps.checkinstance.outputs.instance_exists == 'false' ]; then
+          elastic_ip=$(aws ec2 allocate-address --domain vpc --region us-west-2 --query 'PublicIp' --output text)
+          echo "::set-output name=elastic_ip::$elastic_ip"
+        fi
 
-    - name: Terraform Apply
-      working-directory: terraform
-      run: terraform apply -auto-approve tfplan
+    - name: Associar IP Elástico à Instância
+      run: |
+        if [ steps.checkinstance.outputs.instance_exists == 'false' ]; then
+          instance_id=${{ steps.criar-ou-usar-instancia-ec2.outputs.new_instance_id }}
+        else
+          instance_id=${{ steps.checkinstance.outputs.existing_instance_id }}
+        fi
 
-
+        if [ -n "$elastic_ip" ]; then
+          aws ec2 associate-address \
+            --instance-id $instance_id \
+            --public-ip $elastic_ip \
+            --region sua-regiao-da-aws
+        fi
