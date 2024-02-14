@@ -23,7 +23,6 @@ jobs:
 
     - name: Run tests
       run: python -m pytest
-      continue-on-error: true
 
   build_and_deploy:
     needs: test
