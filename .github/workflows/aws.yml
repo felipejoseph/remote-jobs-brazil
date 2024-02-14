@@ -33,8 +33,9 @@ jobs:
     - name: Copiar arquivos para a instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
-        
-        scp -i "${{ secrets.AWS_PEM }}" -r ./* ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu/
+                
+        rsync -av -e "ssh -i ${{ secrets.AWS_PEM }}" /./* ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu/
+
 
 
     - name: Executar build e deploy na instância EC2
