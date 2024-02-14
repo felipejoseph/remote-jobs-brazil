@@ -33,9 +33,9 @@ jobs:
     - name: Criar e enviar arquivo tar para a instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
-        docker build -t meuapp .
+        docker build -t meuapp -f Docker/Dockerfile .
         
-        docker run --name meuapp-container -v $(pwd):/workdir meuapp tar -czf /workdir/artefatos.tar.gz -C /home/ubuntu .
+        docker run --name meuapp-container -v $(pwd):/workdir meuapp tar -czf /workdir/artefatos.tar.gz -C /workdir .
 
         
         scp -i ${{ secrets.AWS_PEM }} artefatos.tar.gz ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu
