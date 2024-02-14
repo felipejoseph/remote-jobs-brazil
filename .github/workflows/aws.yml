@@ -32,14 +32,14 @@ jobs:
 
     - name: Criar e enviar arquivo tar para a instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
-      - name: Criar e enviar arquivo tar para a instância EC2
-        if: steps.checkinstance.outputs.instance_exists == 'true'
-        run: |
+    - name: Criar e enviar arquivo tar para a instância EC2
+      if: steps.checkinstance.outputs.instance_exists == 'true'
+      run: |
           # Construir a imagem Docker
           docker build -t meuapp -f Docker/Dockerfile .
 
           docker images
-          
+
           # Criar um diretório temporário para armazenar o arquivo .tar.gz
           mkdir -p /tmp/artefatos
           
