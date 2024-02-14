@@ -20,7 +20,7 @@ jobs:
         docker save my-image-name -o my-image-name.tar
     - name: Print build directory
       run: |
-          echo "Build directory: $(pwd)"
+          ls -al /home/runner/work/remote-jobs-brazil/remote-jobs-brazil/build/
 
     - name: Transfer Docker image to EC2 instance
       run: |
