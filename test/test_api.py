@@ -1,9 +1,9 @@
 import unittest
-from app import app
+from app import api
 
 class TestApp(unittest.TestCase):
     def setUp(self):
-        self.app = app.test_client()
+        self.app = api.test_client()
         self.app.testing = True
 
     def tearDown(self):
