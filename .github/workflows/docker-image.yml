@@ -26,7 +26,7 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.AWS_PEM }}
         source: my-image-name.tar
-        target: /tmp/my-image-name.tar
+        target: /home/ubuntu/my-image-name.tar
 
     - name: List files in directory
       run: ls -al
@@ -39,5 +39,5 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
-          sudo docker load -i /tmp/my-image-name.tar
+          sudo docker load -i /home/ubuntu/my-image-name.tar
           sudo docker run -d --name my-container my-image-name
