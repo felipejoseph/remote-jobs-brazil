@@ -34,10 +34,10 @@ jobs:
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
         
-        scp -r * ubuntu@44.232.195.60:/home/ubuntu
+        scp -r * ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu
 
     - name: Executar build e deploy na instância EC2
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
         
-        ssh ubuntu@44.232.195.60 "cd /home/ubuntu/REMOTE-JOBS-BRAZIL/docker && ./build.sh && ./deploy.sh"
+        ssh ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com "cd /home/ubuntu/REMOTE-JOBS-BRAZIL/docker && ./build.sh && ./deploy.sh"
