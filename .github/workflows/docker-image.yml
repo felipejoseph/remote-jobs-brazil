@@ -1,4 +1,5 @@
 name: Docker Image CI
+
 on:
   workflow_run:
     workflows: ["Provision Infrastructure"]
@@ -6,10 +7,11 @@ on:
       - completed
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
     - name: Print Docker build directory
       run: |
         echo "Docker build directory: $(pwd)"
@@ -28,3 +30,23 @@ jobs:
 
     - name: Debug - Display content of the tarball
       run: tar -tvf my-image-name.tar
+
+    - name: Transfer Docker image to EC2 instance
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.EC2_ELASTIC_IP }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.AWS_PEM }}
+        source: my-image-name.tar
+        target: /home/ubuntu
+
+    - name: SSH into EC2 instance and run Docker container
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_ELASTIC_IP }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        script: |
+          sudo docker load -i /home/ubuntu/my-image-name.tar
+          sudo docker run -d --name my-container my-image-name
