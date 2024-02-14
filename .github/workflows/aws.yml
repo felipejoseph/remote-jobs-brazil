@@ -43,12 +43,15 @@ jobs:
     - name: Debug - Listar arquivos na pasta /tmp
       run: |
         ls -la /tmp
+    
+    - name: Escrever chave privada em um arquivo temporário
+      run: echo "${{ secrets.AWS_PEM }}" > chave.pem
 
     - name: Copiar arquivo tar para a instância EC2 usando SFTP
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
         # Copiar o arquivo tar para a instância EC2 usando sftp
-        sftp -i ${{ secrets.AWS_PEM }} ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu/ <<< $"put /tmp/meuapp.tar"
+        sftp -i chave.pem ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu/ <<< $"put /tmp/meuapp.tar"
 
 
         
