@@ -48,4 +48,4 @@ jobs:
           context: .
           file: ./Docker/Dockerfile
           push: true
-          tags: vittooh/hi-app:${{ github.sha }}
+          tags: felipejoseph/remote-jobs-brazil:${{ github.sha }}
