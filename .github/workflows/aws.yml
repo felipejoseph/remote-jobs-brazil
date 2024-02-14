@@ -1,0 +1,35 @@
+name: Deploy Docker Image to EC2
+
+on:
+  workflow_run:
+    workflows: ["Docker Image CI"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2
+      
+    - name: Transfer Docker image to EC2 instance
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.EC2_ELASTIC_IP }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.AWS_PEM }}
+        source: my-image-name_$(date +%s).tar  # Nome do arquivo da imagem Docker
+        target: /path/to/destination/folder    # Caminho na instância EC2
+
+    - name: SSH into EC2 instance and run Docker container
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_ELASTIC_IP }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        script: |
+          sudo docker load -i /path/to/destination/folder/my-image-name_$(date +%s).tar  # Carregar a imagem Docker
+          sudo docker run -d --name my-container my-image-name:$(date +%s)  # Executar o contêiner Docker
