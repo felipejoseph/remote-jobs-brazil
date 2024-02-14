@@ -31,8 +31,8 @@ jobs:
         fi
 
     - name: Criar e enviar arquivo tar para a instância EC2
-        if: steps.checkinstance.outputs.instance_exists == 'true'
-        run: |
+      if: steps.checkinstance.outputs.instance_exists == 'true'
+      run: |
          
               docker build -t meuapp -f Docker/Dockerfile .
               
