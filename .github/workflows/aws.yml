@@ -32,7 +32,7 @@ jobs:
 
     - name: Criar e enviar arquivo tar para a instância EC2
         if: steps.checkinstance.outputs.instance_exists == 'true'
-          run: |
+        run: |
          
               docker build -t meuapp -f Docker/Dockerfile .
               
