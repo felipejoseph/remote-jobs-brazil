@@ -31,22 +31,27 @@ jobs:
         fi
 
     
-    - name: Criar e enviar arquivo tar para a instância EC2
+    - name: Salvar imagem Docker em um arquivo tar
       if: steps.checkinstance.outputs.instance_exists == 'true'
       run: |
-          # Construir a imagem Docker
-          docker build -t meuapp -f Docker/Dockerfile .
+        # Construir a imagem Docker
+        docker build -t meuapp -f Docker/Dockerfile .
+        
+        # Salvar a imagem Docker em um arquivo tar
+        docker save -o /tmp/meuapp.tar meuapp:latest
 
-          docker images
+    - name: Copiar arquivo tar para a instância EC2
+      if: steps.checkinstance.outputs.instance_exists == 'true'
+      run: |
+        # Copiar o arquivo tar para a instância EC2
+        scp -i ${{ secrets.AWS_PEM }} /tmp/meuapp.tar ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu
 
-          # Criar um diretório temporário para armazenar o arquivo .tar.gz
-          mkdir -p /tmp/artefatos
-          
-          # Executar o contêiner Docker e criar o arquivo .tar.gz no diretório temporário
-          docker run --name meuapp-container -v /tmp/artefatos:/workdir meuapp sh -c 'tar -czf /workdir/artefatos.tar.gz -C /workdir .'
+    - name: Apagar imagem Docker localmente
+      if: steps.checkinstance.outputs.instance_exists == 'true'
+      run: |
+        # Apagar a imagem Docker localmente
+        docker rmi meuapp:latest
 
-          # Copiar o arquivo .tar.gz para a instância EC2
-          scp -i ${{ secrets.AWS_PEM }} /tmp/artefatos/artefatos.tar.gz ubuntu@ec2-44-232-195-60.us-west-2.compute.amazonaws.com:/home/ubuntu
 
 
 
