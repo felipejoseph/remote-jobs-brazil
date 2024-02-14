@@ -21,8 +21,10 @@ jobs:
 
     - name: Transfer Docker image to EC2 instance
       run: |
-            sudo tar -czf /tmp/my-image-name.tar.gz /path/to/my-image-name
+            sudo tar -czf /tmp/my-image-name.tar.gz /home/runner/work/remote-jobs-brazil/remote-jobs-brazil/build/my-image-name.tar
             sudo scp /tmp/my-image-name.tar.gz ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_ELASTIC_IP }}:/home/ubuntu
+
+      
 
     - name: List files in directory
       run: ls -al
