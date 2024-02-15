@@ -5,10 +5,9 @@ from flask import request
 
 app_name = 'comentarios'
 app = Flask(app_name)
-app.debug = True
+
 
 comments = {}
-
 
 @app.route('/api/comment/new', methods=['POST'])
 def api_comment_new():
@@ -49,3 +48,6 @@ def api_comment_list(content_id):
                 'message': message,
                 }
         return jsonify(response), 404
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
