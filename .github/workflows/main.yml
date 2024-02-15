@@ -48,7 +48,7 @@ jobs:
         username: "ec2-user"
         key: ${{ secrets.AWS_PEM }}
         script: |
-          cd /home/ec2-user/Docker
+          cd /home/ec2-user/app
           docker build -t comentarios .
           docker run -d --name comentarios-container -p 8000:8000 comentarios
         
