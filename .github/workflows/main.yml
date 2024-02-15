@@ -36,9 +36,6 @@ jobs:
     - name: Build Docker image
       run: docker build -t comentarios:latest -f Docker/Dockerfile .
     
-    - name: criação pasta tmp
-      run: mkdir /tmp
-
     - name: Save Docker image to tar
       run: docker save comentarios:latest > /tmp/comentarios.tar
    
