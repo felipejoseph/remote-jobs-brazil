@@ -37,7 +37,7 @@ jobs:
       run: docker build -t comentarios:latest -f Docker/Dockerfile .
     
     - name: Save Docker image to tar
-      run: docker save comentarios:latest > /Docker/comentarios.tar
+      run: docker save comentarios:latest > ./Docker/comentarios.tar
    
 
   deploy:
