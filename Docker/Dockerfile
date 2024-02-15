@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["gunicorn", "--log-level", "debug", "api:app"]
+CMD ["gunicorn", "--log-level", "debug", "app.api:app"]
