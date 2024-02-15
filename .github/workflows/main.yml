@@ -22,27 +22,9 @@ jobs:
     - name: Run tests
       run: python -m pytest
       
-  docker:
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Build Docker image
-      run: docker build -t comentarios:latest -f Docker/Dockerfile .
-    
-    - name: Save Docker image to tar
-      run: docker save comentarios:latest > ./Docker/comentarios.tar
-   
-
   deploy:
     name: Deploy to EC2
-    needs: docker
+    needs: test
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the files
@@ -58,4 +40,15 @@ jobs:
         REMOTE_HOST: "ec2-52-38-134-59.us-west-2.compute.amazonaws.com"
         REMOTE_USER: "ec2-user"
         TARGET: "/home/ec2-user"
+
+    - name: SSH into EC2 instance
+      uses: appleboy/ssh-action@master
+      with:
+        host: "ec2-52-38-134-59.us-west-2.compute.amazonaws.com"
+        username: "ec2-user"
+        key: ${{ secrets.AWS_PEM }}
+        script: |
+          cd /home/ec2-user/Docker
+          docker build -t comentarios .
+          docker run -d --name comentarios-container -p 8080:80 comentarios
         
