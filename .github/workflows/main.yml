@@ -50,5 +50,5 @@ jobs:
         script: |
           cd /home/ec2-user/Docker
           docker build -t comentarios .
-          docker run -d --name comentarios-container -p 8080:80 comentarios
+          docker run -d --name comentarios-container -p 8000:8000 comentarios
         
