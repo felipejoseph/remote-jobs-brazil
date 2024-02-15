@@ -54,7 +54,7 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{secrets.AWS_PEM}}
         
-        SOURCE: "./Docker/comentarios.tar" 
+        SOURCE: "./"
         REMOTE_HOST: "ec2-52-38-134-59.us-west-2.compute.amazonaws.com"
         REMOTE_USER: "ec2-user"
         TARGET: "/home/ec2-user"
