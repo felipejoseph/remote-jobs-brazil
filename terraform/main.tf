@@ -1,28 +1,35 @@
 terraform {
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.16"
+    aws ={
+        source = "hashicorp/aws"
+        version = "~> 4.16"
     }
   }
+  required_version = ">=1.2.0"
 
-  required_version = ">= 1.0.0"
 }
-
 provider "aws" {
-  region  = "us-west-2"
+  region = "us-west-2"
 }
 
-resource "aws_instance" "comentarios_app" {
-  ami           = "ami-830c94e3"
-  instance_type = "t2.micro"
-  key_name = "iac-teste"
-  
+resource "aws_instance" "comentarios-app" {
+  ami           = "ami-01e82af4e524a0aa3" 
+  instance_type = "t2.micro"               
+  key_name      = "iac-teste"     
+
   tags = {
-    Name = "comentarios-app-instance"
+    Name = "comentarios-api"
   }
   
+  subnet_id               = "subnet-099feb3735a0ec3d3" 
+  associate_public_ip_address = true          
+  security_groups         = ["sg-0c076607883a4a464"]   
+
 }
-output "public_ip" {
-  value = aws_instance.comentarios_app.public_ip
+resource "aws_route53_record" "comentarios-app_dns" {
+  zone_id = "Z08547862T01532USN2TQ"  # ID da sua zona hospedada no Route 53
+  name    = "comentarios.felipestestes.net"      # Domínio principal
+  type    = "A"
+  ttl     = "300"
+  records = [aws_instance.comentarios-app.public_ip]
 }
