@@ -37,6 +37,9 @@ jobs:
         echo "[default]" > ~/.aws/credentials
         echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
         echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+    
+    - name: Change directory to Terraform directory
+      run: cd terraform
 
    
     - name: Terraform Init
@@ -51,15 +54,4 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
-  
-  trigger_next_workflow:
-    name: Trigger Next Workflow
-    runs-on: ubuntu-latest
-    needs: terraform
-    if: github.event_name == 'workflow_run' && github.event.workflow == 'Terraform' && github.event.conclusion == 'success'
 
-    steps:
-    - name: Trigger Workflow
-      uses: peter-evans/workflow-dispatch@v1
-      with:
-        workflow: 'Push-to-EC2'    
