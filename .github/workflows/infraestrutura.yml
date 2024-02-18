@@ -39,7 +39,7 @@ jobs:
         echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
     
     - name: Change directory to Terraform directory
-      run: cd terraform
+      run: cd ./terraform
 
    
     - name: Terraform Init
