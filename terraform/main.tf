@@ -27,9 +27,10 @@ resource "aws_instance" "comentarios-app" {
 
 }
 resource "aws_route53_record" "comentarios-app_dns" {
-  zone_id = "Z08547862T01532USN2TQ"  # ID da sua zona hospedada no Route 53
-  name    = "comentarios.felipestestes.net"      # Domínio principal
+  zone_id = "Z08547862T01532USN2TQ"  
+  name    = "comentarios.felipestestes.net"      
   type    = "A"
   ttl     = "300"
   records = [aws_instance.comentarios-app.public_ip]
+  allow_overwrite = true
 }

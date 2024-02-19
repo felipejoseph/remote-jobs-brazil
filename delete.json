@@ -1,0 +1,19 @@
+{
+    "Comment": "Delete a record set",
+    "Changes": [
+      {
+        "Action": "DELETE",
+        "ResourceRecordSet": {
+          "Name": "comentarios.felipestestes.net",
+          "Type": "A",
+          "TTL": 300,
+          "ResourceRecords": [
+            {
+              "Value": "your_public_ip_address"
+            }
+          ]
+        }
+      }
+    ]
+  }
+  
