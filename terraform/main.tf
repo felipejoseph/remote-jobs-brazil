@@ -21,10 +21,12 @@ resource "aws_instance" "comentarios-app" {
     Name = "comentarios-api"
   }
   
-  subnet_id               = "subnet-099feb3735a0ec3d3" 
-  associate_public_ip_address = true          
-  security_groups         = ["sg-0c076607883a4a464"]   
-
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum install -y docker",
+      "sudo service docker start"
+    ]
+  }
 }
 resource "aws_route53_record" "comentarios-app_dns" {
   zone_id = "Z08547862T01532USN2TQ"  
