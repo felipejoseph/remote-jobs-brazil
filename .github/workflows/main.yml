@@ -1,7 +1,7 @@
 name: Push-to-EC2
 on:
   workflow_run:
-    workflows: ["Terraform"]
+    workflows: ["Docker"]
     types:
       - completed
 jobs:
