@@ -21,10 +21,16 @@ resource "aws_instance" "comentarios-app" {
     Name = "comentarios-api"
   }
   
+  subnet_id               = "subnet-099feb3735a0ec3d3" 
+  associate_public_ip_address = true          
+  security_groups         = ["sg-0c076607883a4a464"]   
+
   provisioner "remote-exec" {
     inline = [
-      "sudo yum install -y docker",
-      "sudo service docker start"
+      "sudo yum update -y",          # Atualiza os pacotes
+      "sudo amazon-linux-extras install -y docker",  # Instala o Docker
+      "sudo service docker start",   # Inicia o serviço do Docker
+      "sudo usermod -aG docker ec2-user"  # Adiciona o usuário ec2-user ao grupo docker
     ]
   }
 }
