@@ -23,8 +23,23 @@ resource "aws_instance" "comentarios-app" {
   
   subnet_id               = "subnet-099feb3735a0ec3d3" 
   associate_public_ip_address = true          
-  security_groups         = ["sg-0c076607883a4a464"]   
+  security_groups         = ["sg-0c076607883a4a464"]
 
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = file(env("AWS_PEM"))
+    host        = self.public_ip
+  } 
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum update -y",          # Atualiza os pacotes
+      "sudo amazon-linux-extras install -y docker",  # Instala o Docker
+      "sudo service docker start",   # Inicia o serviço do Docker
+      "sudo usermod -aG docker ec2-user"  # Adiciona o usuário ec2-user ao grupo docker
+    ]
+  }
 }
 resource "aws_route53_record" "comentarios-app_dns" {
   zone_id = "Z08547862T01532USN2TQ"  
