@@ -31,27 +31,35 @@ jobs:
         terraform_version: latest
 
     
-    - name: Configure AWS credentials
+    - name: Set up AWS credentials
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-        mkdir -p ~/.aws
-        echo "[default]" > ~/.aws/credentials
-        echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-        echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
-    
-    - name: Change directory to Terraform directory
-      run: cd ./terraform
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set region us-west-2
+      # Configura a chave PEM da AWS
+    - name: Set up AWS PEM Key
+      env:
+          AWS_PEM: ${{ secrets.AWS_PEM_KEY }}
+      run: |
+        echo "$AWS_PEM" | base64 --decode > /tmp/chave.pem
+        chmod 400 /tmp/chave.pem
+        ls -l /tmp/chave.pem
+      
+    - name: Use AWS PEM Key
+      run: echo "$AWS_PEM" | base64 --decode > chave.pem && chmod 400 chave.pem && ls -l
 
-   
     - name: Terraform Init
+      working-directory: terraform
       run: terraform init
 
-
-    
     - name: Terraform Plan
-      run: terraform plan -input=false
+      working-directory: terraform
+      run: terraform plan -out=tfplan
 
-    
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
+      working-directory: terraform
+      run: terraform apply -auto-approve tfplan
 
