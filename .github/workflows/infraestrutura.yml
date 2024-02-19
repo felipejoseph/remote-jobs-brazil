@@ -51,6 +51,14 @@ jobs:
     - name: Use AWS PEM Key
       run: echo "$AWS_PEM" | base64 --decode > chave.pem && chmod 400 chave.pem && ls -l
 
+    - name: Install Docker
+      run: |
+        sudo yum install -y docker
+
+    - name: Start Docker
+      run: |
+        sudo systemctl start docker
+
     - name: Terraform Init
       working-directory: terraform
       run: terraform init
